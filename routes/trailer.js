@@ -29,14 +29,21 @@ function getTrailerLink(imdbID, callback) {
   });
 }
 
+function fetch(url, callback) {
+  get_imdbID("https://content.viaplay.se/web-se/film/" + url, 
+      function(imdbID) {
+        getTrailerLink(imdbID, 
+          function(link) {
+            callback({link: link});
+          });
+      });
+}
+
 /* GET home page. */
 router.get('/film/:filmUrl', function(req, res, next) {
-  get_imdbID("https://content.viaplay.se/web-se/film/" + req.params.filmUrl, 
-    function(imdbID) {
-      getTrailerLink(imdbID, 
-        function(link) {
-          res.send({link: link});
-        });
+  fetch(req.params.filmUrl, 
+    function(data) {
+      res.send(data);
     });
 });
 
