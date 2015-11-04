@@ -23,7 +23,7 @@ function getLinkFromTraileraddictXML(xml, callback) {
 }
 
 function getTrailerLink(imdbID, callback) {
-  var traileraddictUrl = "https://api.traileraddict.com/";
+  var traileraddictUrl = "http://api.traileraddict.com/";
   request(traileraddictUrl + "?imdb=" + imdbID, function(err, res, body) {
     getLinkFromTraileraddictXML(body, callback);
   });
