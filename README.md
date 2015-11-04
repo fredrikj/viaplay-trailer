@@ -17,3 +17,10 @@ Then go to <http://localhost:3000>, or even better - try some sample links:
 
 <http://localhost:3000/trailer/film/neighbors-2014>
 
+
+## Background
+It is implemented in Node.js with Express.
+
+It is caching the link obtained from traileraddict.com in an in-memory cache, implemented in a hash.
+
+It contains one feature/system test which uses nocker and supertest to simulate a real call to this app.
