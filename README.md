@@ -11,7 +11,9 @@ $ npm test
 $ npm start
 ```
 
-Then go to http://localhost:3000, or even better - try some sample links:
-http://localhost:3000/trailer/film/the-internship-2013
-http://localhost:3000/trailer/film/neighbors-2014
+Then go to <http://localhost:3000>, or even better - try some sample links:
+
+<http://localhost:3000/trailer/film/the-internship-2013>
+
+<http://localhost:3000/trailer/film/neighbors-2014>
 
