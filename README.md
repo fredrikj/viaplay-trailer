@@ -28,6 +28,7 @@ The response is in JSON format. For example:
 It is implemented in Node.js with Express.
 
 It is caching the link obtained from traileraddict.com in an in-memory cache, implemented in a hash.
+There is one unit test of the cache.
 
 It contains one feature/system test which uses nocker and supertest to simulate a real call to this app.
 
