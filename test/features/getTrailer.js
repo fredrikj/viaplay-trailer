@@ -6,12 +6,16 @@ chai.should();
 var app = require("../../app.js");
 var request = require("supertest");
 var nock = require("nock");
+var fs = require("fs");
 
 Feature("Get trailer URL", function () {
   var response;
 
   function mockSetup() {
-    nock("https://content.viaplay.se").get("web-se/film/the-internship-2013").reply(200,{jo: "yeah"});
+    var viaplayData = fs.readFileSync("test/data/viaplay.json", 'utf8'); 
+    nock("https://content.viaplay.se").get("/web-se/film/the-internship-2013").reply(200,viaplayData);
+    var traileraddictData = fs.readFileSync("test/data/trailer.xml", 'utf8'); 
+    nock("https://api.traileraddict.com").get("/?imdb=2234155").reply(200, traileraddictData);
   }
 
   before(mockSetup);
