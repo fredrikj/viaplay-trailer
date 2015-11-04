@@ -34,16 +34,37 @@ function fetch(url, callback) {
       function(imdbID) {
         getTrailerLink(imdbID, 
           function(link) {
-            callback({link: link});
+            callback(link);
           });
       });
 }
 
+var cacheFetch = (function() {
+  var cache = {};
+  return function(key, callback) {
+    if (cache[key] && cache[key].pending) { // Fetch pending
+      cache[key].callbacks.push(callback);
+    } else if (cache[key]) {                // In cache
+      callback(cache[key]);
+    } else {                                // First fetch
+      cache[key] = { pending : true,
+                     callbacks : [ callback ] };
+      fetch(key, 
+        function(val) { 
+          for (var i=0; i<cache[key].callbacks.length; i++) {
+            cache[key].callbacks[i](val);
+          }
+          cache[key] = val;
+        });
+    }
+  };
+}());
+
 /* GET home page. */
 router.get('/film/:filmUrl', function(req, res, next) {
-  fetch(req.params.filmUrl, 
-    function(data) {
-      res.send(data);
+  cacheFetch(req.params.filmUrl, 
+    function(link) {
+      res.send({link : link});
     });
 });
 
