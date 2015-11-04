@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var request = require("request");
 var xml2js = require("xml2js");
+var cache = require("../lib/cache.js");
 
 function get_imdbID(url, callback) {
   var imdbID, jsonData;
@@ -39,30 +40,11 @@ function fetch(url, callback) {
       });
 }
 
-var cacheFetch = (function() {
-  var cache = {};
-  return function(key, callback) {
-    if (cache[key] && cache[key].pending) { // Fetch pending
-      cache[key].callbacks.push(callback);
-    } else if (cache[key]) {                // In cache
-      callback(cache[key]);
-    } else {                                // First fetch
-      cache[key] = { pending : true,
-                     callbacks : [ callback ] };
-      fetch(key, 
-        function(val) { 
-          for (var i=0; i<cache[key].callbacks.length; i++) {
-            cache[key].callbacks[i](val);
-          }
-          cache[key] = val;
-        });
-    }
-  };
-}());
+var cachedFetch = cache(fetch);
 
 /* GET home page. */
 router.get('/film/:filmUrl', function(req, res, next) {
-  cacheFetch(req.params.filmUrl, 
+  cachedFetch(req.params.filmUrl, 
     function(link) {
       res.send({link : link});
     });
