@@ -9,17 +9,27 @@ function get_imdbID(url, callback) {
   request(url, function(err, res, body) {
     jsonData = JSON.parse(body);
     //FIXME Crashes if something undefined
-    imdbID = jsonData._embedded["viaplay:blocks"][0]._embedded["viaplay:product"].content.imdb.id;
-    imdbID = imdbID.replace(/tt(.*)$/,"$1");
-    callback(imdbID);
+    try {
+      imdbID = jsonData._embedded["viaplay:blocks"][0]._embedded["viaplay:product"].content.imdb.id;
+      imdbID = imdbID.replace(/tt(.*)$/,"$1");
+      callback(undefined, imdbID);
+    }
+    catch (err) {
+      callback("Could not get IMDB from Viaplay JSON");
+    }
   });
 }
 
 function getLinkFromTraileraddictXML(xml, callback) {
   var xmlParser = new xml2js.Parser();
   xmlParser.parseString(xml, function(err, data) {
-    var trailerId = data.trailers.trailer[0].trailer_id[0];
-    callback("https://v.traileraddict.com/" + trailerId);
+    try {
+      var trailerId = data.trailers.trailer[0].trailer_id[0];
+      callback(undefined, "https://v.traileraddict.com/" + trailerId);
+    } 
+    catch(err) {
+      callback("Could not get traileraddict link");
+    }
   });
 }
 
@@ -32,11 +42,12 @@ function getTrailerLink(imdbID, callback) {
 
 function fetch(url, callback) {
   get_imdbID("https://content.viaplay.se/web-se/film/" + url, 
-      function(imdbID) {
-        getTrailerLink(imdbID, 
-          function(link) {
-            callback(link);
-          });
+      function(err, imdbID) {
+        if (err) {
+          callback(err);
+        } else {
+          getTrailerLink(imdbID, callback);
+        }
       });
 }
 
@@ -45,8 +56,12 @@ var cachedFetch = cache(fetch);
 /* GET home page. */
 router.get('/film/:filmUrl', function(req, res, next) {
   cachedFetch(req.params.filmUrl, 
-    function(link) {
-      res.send({link : link});
+    function(err, link) {
+      if (err) {
+        res.sendStatus(404);
+      } else {
+        res.send({link : link});
+      }
     });
 });
 
