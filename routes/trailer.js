@@ -7,12 +7,14 @@ var cache = require("../lib/cache.js");
 function get_imdbID(url, callback) {
   var imdbID, jsonData;
   request(url, function(err, res, body) {
+    if (err) {
+      callback("HTTP : " + JSON.stringify(err));
+    }
     jsonData = JSON.parse(body);
-    //FIXME Crashes if something undefined
     try {
       imdbID = jsonData._embedded["viaplay:blocks"][0]._embedded["viaplay:product"].content.imdb.id;
       imdbID = imdbID.replace(/tt(.*)$/,"$1");
-      callback(undefined, imdbID);
+      callback(null, imdbID);
     }
     catch (err) {
       callback("Could not get IMDB from Viaplay JSON");
@@ -25,7 +27,7 @@ function getLinkFromTraileraddictXML(xml, callback) {
   xmlParser.parseString(xml, function(err, data) {
     try {
       var trailerId = data.trailers.trailer[0].trailer_id[0];
-      callback(undefined, "https://v.traileraddict.com/" + trailerId);
+      callback(null, "https://v.traileraddict.com/" + trailerId);
     } 
     catch(err) {
       callback("Could not get traileraddict link");
@@ -58,7 +60,7 @@ router.get('/film/:filmUrl', function(req, res, next) {
   cachedFetch(req.params.filmUrl, 
     function(err, link) {
       if (err) {
-        res.sendStatus(404);
+        res.status(404).send(err);
       } else {
         res.send({link : link});
       }
